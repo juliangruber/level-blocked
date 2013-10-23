@@ -223,6 +223,29 @@ test('end out of bounds', function (t) {
   });
 });
 
+test('start and end', function (t) {
+  t.plan(2);
+
+  var db = memdb();
+  var blocks = blocked(db, 3);
+
+  db.batch()
+  .put('key\xffblocks\xff0', new Buffer('val'))
+  .put('key\xffblocks\xff1', new Buffer('ue'))
+  .write(function(err) {
+    t.error(err, 'db.batch');
+
+    var value = '';
+    blocks.createReadStream('key', { start: 1, end: 3 })
+    .on('data', function(block) {
+      value += block.toString();
+    })
+    .on('end', function() {
+      t.equal(value.toString(), 'alu', 'parts of both blocks');
+    });
+  });
+});
+
 test('not found', function (t) {
   t.plan(2);
 

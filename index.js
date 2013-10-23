@@ -17,7 +17,7 @@ Blocked.prototype.createReadStream = function(key, opts) {
   var db = this.db;
 
   var start = opts.start || 0;
-  var endSet = 'end' in opts;
+  var endSet = typeof opts.end != 'undefined';
 
   var startIdx = start
     ? Math.floor(start / this.blockSize)
@@ -49,8 +49,7 @@ Blocked.prototype.createReadStream = function(key, opts) {
         block = block.slice(blockStart);
       }
       if (endSet && idx == endIdx) {
-        var end = Math.min(blockEnd - blockStart + 1, block.length);
-        block = block.slice(0, end);
+        block = block.slice(0, blockEnd + 1);
       }
       if (!block.length) return rs.push(null);
 
