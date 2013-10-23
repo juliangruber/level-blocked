@@ -1,5 +1,6 @@
 var Readable = require('stream').Readable
   || require('readable-stream').Readable;
+var once = require('once');
 
 module.exports = Blocked;
 
@@ -59,7 +60,26 @@ Blocked.prototype.createReadStream = function(key, opts) {
   };
 
   return rs;
-}
+};
+
+Blocked.prototype.read = function(key, opts, cb) {
+  if (typeof opts == 'function') {
+    cb = opts;
+    opts = {};
+  }
+
+  cb = once(cb);
+  var chunks = [];
+
+  this.createReadStream(key, opts)
+  .on('error', cb)
+  .on('data', function(chunk) {
+    chunks.push(chunk);
+  })
+  .on('end', function() {
+    cb(null, Buffer.concat(chunks));
+  });
+};
 
 function join() {
   return [].slice.call(arguments).join('\xff');

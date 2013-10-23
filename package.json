@@ -12,7 +12,8 @@
     "test": "tape test/*.js"
   },
   "dependencies": {
-    "readable-stream": "~1.1.9"
+    "readable-stream": "~1.1.9",
+    "once": "~1.2.0"
   },
   "devDependencies": {
     "tape": "~2.0.0",

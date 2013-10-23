@@ -56,6 +56,25 @@ db.batch()
 });
 ```
 
+### blocks.read(key[, opts], cb)
+
+Callback version of `blocks.createReadStream()`. The same options apply.
+
+```js
+db.batch()
+.put('key\xffblocks\xff0', new Buffer('val'))
+.put('key\xffblocks\xff1', new Buffer('ue'))
+.write(function(err) {
+  if (err) throw err;
+
+  blocks.read('key', function(err, block) {
+    if (err) throw err;
+    console.log('block: %s', block);
+    // => block: value
+  });
+});
+```
+
 ## installation
 
 With [npm](https://npmjs.org) do:
