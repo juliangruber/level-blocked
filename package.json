@@ -1,0 +1,36 @@
+{
+  "name": "level-blocked",
+  "description": "Blocked data storage on top of LevelDB",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/juliangruber/level-blocked.git"
+  },
+  "homepage": "https://github.com/juliangruber/level-blocked",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "tape": "~2.0.0",
+    "memdb": "0.0.3"
+  },
+  "keywords": [
+    "level",
+    "leveldb",
+    "blocked",
+    "block",
+    "data",
+    "storage",
+    "levelfs",
+    "fs",
+    "blocking"
+  ],
+  "author": {
+    "name": "Julian Gruber",
+    "email": "mail@juliangruber.com",
+    "url": "http://juliangruber.com"
+  },
+  "license": "MIT"
+}
