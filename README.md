@@ -4,6 +4,8 @@
 [Blocked data storage](http://en.wikipedia.org/wiki/Block_(data_storage)
 on top of [LevelUp](https://github.com/rvagg/node-levelup).
 
+[![build status](https://secure.travis-ci.org/juliangruber/level-blocked.png)](http://travis-ci.org/juliangruber/level-blocked)
+
 ## work in progress
 
 There still are methods and options missing, but eventually the api will
