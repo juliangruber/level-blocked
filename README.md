@@ -10,9 +10,7 @@ on top of [LevelUp](https://github.com/rvagg/node-levelup).
 
 ## work in progress
 
-There still are methods and options missing, but eventually the api will
-mirror the relevant parts of the node.js [fs api](http://nodejs.org/api/fs.html)
-as closely as possible.
+The writing part still is missing.
 
 ## key design
 
@@ -38,8 +36,8 @@ var blocks = blocked(db, 3);
 ### blocks.createReadStream(key[, opts])
 
 * `key`: The address of your data
-* `opts.start`: Offset the read stream by that number of bytes
-* `opts.end`: Last byte to read
+* `opts.start`: The first byte to read
+* `opts.end`: The last byte to read
 
 ```js
 db.batch()
@@ -58,7 +56,11 @@ db.batch()
 
 ### blocks.read(key[, opts], cb)
 
-Callback version of `blocks.createReadStream()`. The same options apply.
+Callback version of `blocks.createReadStream()`.
+
+* `key`: The address of your data
+* `opts.start`: The first byte to read
+* `opts.end`: The last byte to read
 
 ```js
 db.batch()
