@@ -14,8 +14,16 @@ Blocked.prototype.createReadStream = function(key, opts) {
   if (!opts) opts = {};
 
   var rs = Readable();
-  var idx = 0;
   var db = this.db;
+
+  var start = opts.start || 0;
+  var startIdx = start
+    ? Math.floor(start / this.blockSize)
+    : 0;
+  var blockStart = start
+    ? start % this.blockSize
+    : 0;
+  var idx = startIdx;
 
   rs._read = function() {
     db.get(join(key, 'blocks', idx), function(err, block) {
@@ -25,6 +33,11 @@ Blocked.prototype.createReadStream = function(key, opts) {
         else
           rs.push(null);
         return;
+      }
+
+      if (idx == startIdx && start != 0) {
+        block = block.slice(blockStart);
+        if (!block.length) return rs.push(null);
       }
 
       idx++;

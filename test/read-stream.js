@@ -41,6 +41,95 @@ test('multiple blocks', function (t) {
   });
 });
 
+test('start: 0', function (t) {
+  t.plan(2);
+
+  var db = memdb();
+  var blocks = blocked(db, 1024);
+
+  db.put('key\xffblocks\xff0', new Buffer('value'), function(err) {
+    t.error(err, 'db.put');
+
+    blocks.createReadStream('key', { start: 0 })
+    .on('data', function(block) {
+      t.equal(block.toString(), 'value', 'first block');
+    });
+  });
+});
+
+test('start inside first block', function (t) {
+  t.plan(2);
+
+  var db = memdb();
+  var blocks = blocked(db, 1024);
+
+  db.put('key\xffblocks\xff0', new Buffer('value'), function(err) {
+    t.error(err, 'db.put');
+
+    blocks.createReadStream('key', { start: 2 })
+    .on('data', function(block) {
+      t.equal(block.toString(), 'lue', 'part of first block');
+    });
+  });
+});
+
+test('start at second block', function (t) {
+  t.plan(2);
+
+  var db = memdb();
+  var blocks = blocked(db, 3);
+
+  db.batch()
+  .put('key\xffblocks\xff0', new Buffer('val'))
+  .put('key\xffblocks\xff1', new Buffer('ue'))
+  .write(function(err) {
+    t.error(err, 'db.batch');
+
+    blocks.createReadStream('key', { start: 3 })
+    .on('data', function(block) {
+      t.equal(block.toString(), 'ue', 'second block');
+    });
+  });
+});
+
+test('start inside second block', function (t) {
+  t.plan(2);
+
+  var db = memdb();
+  var blocks = blocked(db, 3);
+
+  db.batch()
+  .put('key\xffblocks\xff0', new Buffer('val'))
+  .put('key\xffblocks\xff1', new Buffer('ue'))
+  .write(function(err) {
+    t.error(err, 'db.batch');
+
+    blocks.createReadStream('key', { start: 4 })
+    .on('data', function(block) {
+      t.equal(block.toString(), 'e', 'part of second block');
+    });
+  });
+});
+
+test('start out of bounds', function (t) {
+  t.plan(2);
+
+  var db = memdb();
+  var blocks = blocked(db, 1024);
+
+  db.put('key\xffblocks\xff0', new Buffer('value'), function(err) {
+    t.error(err, 'db.put');
+
+    blocks.createReadStream('key', { start: 5 })
+    .on('data', function() {
+      t.fail();
+    })
+    .on('end', function() {
+      t.ok(true, 'empty');
+    });
+  });
+});
+
 test('not found', function (t) {
   t.plan(2);
 

@@ -35,7 +35,10 @@ var db = level(__dirname + '/db');
 var blocks = blocked(db, 3);
 ```
 
-### blocks.createReadStream(key)
+### blocks.createReadStream(key[, opts])
+
+* `key`: The address of your data
+* `opts.start`: Offset the read stream by that number of bytes
 
 ```js
 db.batch()
