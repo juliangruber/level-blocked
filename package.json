@@ -1,6 +1,6 @@
 {
   "name": "level-blocked",
-  "description": "Blocked data storage on top of LevelDB",
+  "description": "Blocked data storage on top of LevelUp",
   "version": "0.0.0",
   "repository": {
     "type": "git",

@@ -2,7 +2,7 @@ var test = require('tape');
 var memdb = require('memdb');
 var blocked = require('..');
 
-test('single chunk', function (t) {
+test('single block', function (t) {
   t.plan(2);
 
   var db = memdb();
@@ -11,13 +11,13 @@ test('single chunk', function (t) {
   db.put('key\xffblocks\xff0', new Buffer('value'), function(err) {
     t.error(err, 'db.put');
 
-    blocks.createReadStream('key').on('data', function(chunk) {
-      t.equal(chunk.toString(), 'value', 'value of data event');
+    blocks.createReadStream('key').on('data', function(block) {
+      t.equal(block.toString(), 'value', 'value of data event');
     });
   });
 });
 
-test('multiple chunks', function (t) {
+test('multiple blocks', function (t) {
   t.plan(3);
 
   var db = memdb();
@@ -30,11 +30,11 @@ test('multiple chunks', function (t) {
     t.error(err, 'db.batch');
 
     var i = 0;
-    blocks.createReadStream('key').on('data', function(chunk) {
+    blocks.createReadStream('key').on('data', function(block) {
       if (i == 0) {
-        t.equal(chunk.toString(), 'val', 'first value');
+        t.equal(block.toString(), 'val', 'first value');
       } else {
-        t.equal(chunk.toString(), 'ue', 'second value');
+        t.equal(block.toString(), 'ue', 'second value');
       }
       i++;
     });
