@@ -1,7 +1,7 @@
 
 # level-blocked
 
-[Blocked data storage](http://en.wikipedia.org/wiki/Block_(data_storage))
+[Blocked data storage](http://en.wikipedia.org/wiki/Block_(data_storage)
 on top of [LevelUp](https://github.com/rvagg/node-levelup).
 
 ## work in progress
