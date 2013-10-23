@@ -49,7 +49,8 @@ Blocked.prototype.createReadStream = function(key, opts) {
         block = block.slice(blockStart);
       }
       if (endSet && idx == endIdx) {
-        block = block.slice(0, blockEnd - blockStart + 1);
+        var end = Math.min(blockEnd - blockStart + 1, block.length);
+        block = block.slice(0, end);
       }
       if (!block.length) return rs.push(null);
 
