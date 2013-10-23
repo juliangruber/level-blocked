@@ -20,6 +20,7 @@ as closely as possible.
 
 ### var blocks = blocked(db, [blockSize])
 
+* `db`: A [LevelUp](https://github.com/rvagg/node-levelup) database.
 * `blockSize`: Each block's maximum size in bytes, defaults to `1024`.
 
 ```js
