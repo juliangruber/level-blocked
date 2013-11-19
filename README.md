@@ -35,6 +35,8 @@ var blocks = blocked(db, 3);
 
 ### blocks.createReadStream(key[, opts])
 
+Streaming read access.
+
 * `key`: The address of your data
 * `opts.start`: The first byte to read
 * `opts.end`: The last byte to read
@@ -56,7 +58,7 @@ db.batch()
 
 ### blocks.read(key[, opts], cb)
 
-Callback version of `blocks.createReadStream()`.
+Callback / buffered read access.
 
 * `key`: The address of your data
 * `opts.start`: The first byte to read
