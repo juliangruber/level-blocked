@@ -133,43 +133,54 @@ Blocked.prototype.write = function(key, buf, opts, cb) {
   }
   if (!opts) opts = {};
   if (!Buffer.isBuffer(buf)) buf = new Buffer(buf);
+  debug('write to "%s" "%s" %j', key, buf, opts);
 
   var self = this;
   var batch = opts.batch || self.db.batch();
   var start = opts.start || 0;
 
-  var startBlock = {
+  var startAt = {
     idx: floor(start / self.blockSize),
     offset: start % self.blockSize
   };
-  startBlock.key = join(key, 'blocks', startBlock.idx);
+  startAt.key = join(key, 'blocks', startAt.idx);
+  debug('start at %j', startAt);
+
   var endBlockIdx = ceil((start + buf.length) / self.blockSize) - 1;
+  debug('end at {"idx":%s}', endBlockIdx);
 
-  self.fillBlocksUntil(key, startBlock.idx, batch, function(err, lastBlockIdx) {
+  self.fillBlocksUntil(key, startAt.idx, batch, function(err, lastBlockIdx) {
     if (err) t.error(err);
+    debug('last known block {"idx":%s}', lastBlockIdx);
 
-    self.db.get(startBlock.key, function(err, block) {
+    var writeNow = min(self.blockSize, buf.length);
+    var sourceStart = 0;
+    var targetStart = startAt.offset;
+    var targetEnd = writeNow + (startAt.idx * self.blockSize) - start;
+    
+    self.db.get(startAt.key, function(err, block) {
       if (err && !err.notFound) return cb(err);
-
-      var writeNow = min(self.blockSize, buf.length);
-      var sourceStart = 0;
-      var targetStart = startBlock.offset;
-      var targetEnd = writeNow + (startBlock.idx * self.blockSize) - start;
 
       if (!block) {
         var len = writeNow;
-        if (startBlock.idx == lastBlockIdx) len += (startBlock.idx * self.blockSize) - start;
+        if (startAt.offset > 0) len += startAt.offset;
+        debug('create first block with length %s', len);
         block = new Buffer(len);
-        if (startBlock.idx == lastBlockIdx) block.fill('\x00', 0, (startBlock.idx * self.blocksize) - start);
+        if (startAt.offset > 0) {
+          debug('zero fill first %s bytes', startAt.offset);
+          block.fill('\x00', 0, startAt.offset);
+        }
+      } else {
+        debug('first block value "%s"', block);
       }
 
       buf.copy(block, targetStart, sourceStart, writeNow);
-      batch.put(startBlock.key, block);
+      batch.put(startAt.key, block);
 
       var bytesLeft = buf.length - writeNow;
-      if (startBlock.idx == endBlockIdx) return batch.write(cb);
+      if (startAt.idx == endBlockIdx) return batch.write(cb);
 
-      for (var idx = startBlock.idx + 1; idx <= endBlockIdx; idx++) {
+      for (var idx = startAt.idx + 1; idx <= endBlockIdx; idx++) {
         var offset = buf.length - bytesLeft;
         console.log('offset', offset, 'end', min(self.blockSize, bytesLeft))
         batch.put(
