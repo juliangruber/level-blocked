@@ -198,6 +198,7 @@ Blocked.prototype.fillBlocksUntil = function(key, idx, batch, cb) {
   cb = once(cb);
   var self = this;
   var last;
+  debug('fill blocks for "%s" until %s', key, idx);
 
   self.db.createKeyStream({
     gt: key + '\xffblocks\xff',
