@@ -82,7 +82,8 @@ test('start inside second block', function(t) {
 
     mirror(db, {
       'key\xffblocks\xff0': '\x00\x00\x00\x00\x00',
-      'key\xffblocks\xff1': '\x00value'
+      'key\xffblocks\xff1': '\x00valu',
+      'key\xffblocks\xff2': 'e'
     }, t.error.bind(t));
   });
 });

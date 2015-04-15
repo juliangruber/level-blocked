@@ -152,7 +152,8 @@ Blocked.prototype.write = function(key, buf, opts, cb) {
   self.fillBlocksUntil(key, startAt.idx, batch, function(err, lastBlockIdx) {
     if (err) t.error(err);
 
-    var writeNow = min(self.blockSize, buf.length);
+    var writeNow = min(self.blockSize - startAt.offset, buf.length);
+    debug('write now %s', writeNow);
     var sourceStart = 0;
     var targetStart = startAt.offset;
     var targetEnd = writeNow + (startAt.idx * self.blockSize) - start;
@@ -161,7 +162,7 @@ Blocked.prototype.write = function(key, buf, opts, cb) {
       if (err && !err.notFound) return cb(err);
 
       if (!block) {
-        block = new Buffer(writeNow + startAt.offset);
+        block = new Buffer(min(self.blockSize, buf.length + startAt.offset));
         block.fill('\x00');
       }
       debug('first block %o', block);
