@@ -41,10 +41,7 @@ Streaming read access.
 * `opts.end`: The last byte to read
 
 ```js
-db.batch()
-.put('key\xffblocks\xff0', new Buffer('val'))
-.put('key\xffblocks\xff1', new Buffer('ue'))
-.write(function(err) {
+blocks.write('key', 'value', function(err){
   if (err) throw err;
 
   blocks.createReadStream('key').on('data', function(block) {
@@ -64,10 +61,7 @@ Callback / buffered read access.
 * `opts.end`: The last byte to read
 
 ```js
-db.batch()
-.put('key\xffblocks\xff0', new Buffer('val'))
-.put('key\xffblocks\xff1', new Buffer('ue'))
-.write(function(err) {
+blocks.write('key', 'value', function(err){
   if (err) throw err;
 
   blocks.read('key', function(err, block) {

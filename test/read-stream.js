@@ -131,7 +131,7 @@ test('start out of bounds', function (t) {
 });
 
 test('end at first block', function (t) {
-  t.plan(2);
+  t.plan(3);
 
   var db = memdb();
   var blocks = blocked(db, 1024);
@@ -140,8 +140,8 @@ test('end at first block', function (t) {
     t.error(err, 'db.put');
 
     blocks.createReadStream('key', { end: 0 })
-    .on('data', function() {
-      t.fail();
+    .on('data', function(block) {
+      t.equal(block.toString(), 'v', 'part of first block');
     })
     .on('end', function() {
       t.ok(true, 'empty');
