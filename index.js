@@ -151,7 +151,6 @@ Blocked.prototype.write = function(key, buf, opts, cb) {
 
   self.fillBlocksUntil(key, startAt.idx, batch, function(err, lastBlockIdx) {
     if (err) t.error(err);
-    debug('last known block {"idx":%s}', lastBlockIdx);
 
     var writeNow = min(self.blockSize, buf.length);
     var sourceStart = 0;
@@ -162,31 +161,26 @@ Blocked.prototype.write = function(key, buf, opts, cb) {
       if (err && !err.notFound) return cb(err);
 
       if (!block) {
-        var len = writeNow;
-        if (startAt.offset > 0) len += startAt.offset;
-        debug('create first block with length %s', len);
-        block = new Buffer(len);
-        if (startAt.offset > 0) {
-          debug('zero fill first %s bytes', startAt.offset);
-          block.fill('\x00', 0, startAt.offset);
-        }
-      } else {
-        debug('first block value "%s"', block);
+        block = new Buffer(writeNow + startAt.offset);
+        block.fill('\x00');
       }
+      debug('first block "%s"', block);
 
+      debug('copy %s bytes from "%s" at %s to "%s" at %s', writeNow, buf, sourceStart, block, targetStart);
       buf.copy(block, targetStart, sourceStart, writeNow);
+
+      debug('batch "%s" = "%s"', startAt.key, block);
       batch.put(startAt.key, block);
 
       var bytesLeft = buf.length - writeNow;
-      if (startAt.idx == endBlockIdx) return batch.write(cb);
+      if (startAt.idx == endBlockIdx || !bytesLeft) return batch.write(cb);
 
       for (var idx = startAt.idx + 1; idx <= endBlockIdx; idx++) {
         var offset = buf.length - bytesLeft;
-        console.log('offset', offset, 'end', min(self.blockSize, bytesLeft))
-        batch.put(
-          join(key, 'blocks', idx),
-          buf.slice(offset, offset + min(self.blockSize, bytesLeft))
-        );
+        var _key = join(key, 'blocks', idx);
+        var _value = buf.slice(offset, offset + min(self.blockSize, bytesLeft));
+        debug('batch "%s" = "%s"', _key, _value);
+        batch.put(_key, _value);
         bytesLeft -= self.blockSize;
       }
       batch.write(cb);

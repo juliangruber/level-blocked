@@ -69,23 +69,25 @@ test('start at second block', function(t) {
   });
 });
 
-/*
-test('start inside first block', function (t) {
+test('start inside second block', function(t) {
   t.plan(2);
 
   var db = memdb();
-  var blocks = blocked(db, 1024);
+  var blocks = blocked(db, 5);
 
-  db.put('key\xffblocks\xff0', new Buffer('value'), function(err) {
-    t.error(err, 'db.put');
+  blocks.write('key', 'value', {
+    start: 6
+  }, function(err) {
+    t.error(err);
 
-    blocks.createReadStream('key', { start: 2 })
-    .on('data', function(block) {
-      t.equal(block.toString(), 'lue', 'part of first block');
-    });
+    mirror(db, {
+      'key\xffblocks\xff0': '\x00\x00\x00\x00\x00',
+      'key\xffblocks\xff1': '\x00value'
+    }, t.error.bind(t));
   });
 });
 
+/*
 test('start at second block', function (t) {
   t.plan(2);
 
