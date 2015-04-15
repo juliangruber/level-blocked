@@ -63,14 +63,20 @@ Blocked.prototype.createReadStream = function(key, opts) {
         }
         return;
       }
+      debug('got %s', block);
 
       if (start != 0 && idx == startAt.idx) {
+        debug('omit first %s bytes', startAt.offset);
         block = block.slice(startAt.offset);
       }
-      if (idx == endAt.idx) {
-        block = block.slice(0, min(block.length, endAt.offset + 1));
+      if (idx == endAt.idx && endAt.offset < block.length) {
+        debug('omit last %s bytes', block.length - endAt.offset - 1);
+        block = block.slice(0, endAt.offset + 1);
       }
-      if (!block.length) return rs.push(null);
+      if (!block.length) {
+        debug('end');
+        return rs.push(null);
+      }
 
       idx++;
       debug('push %s', block);
