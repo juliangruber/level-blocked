@@ -3,6 +3,7 @@ var Readable = require('stream').Readable
 var Writable = require('stream').Writable
   || require('readable-stream').Writable;
 var once = require('once');
+var debug = require('debug')('level-blocked');
 var min = Math.min;
 var floor = Math.floor;
 var ceil = Math.ceil;
@@ -18,6 +19,7 @@ function Blocked(db, blockSize) {
 
 Blocked.prototype.createReadStream = function(key, opts) {
   if (!opts) opts = {};
+  debug('read "%s" %j', key, opts);
 
   var rs = Readable();
   var db = this.db;
@@ -25,41 +27,53 @@ Blocked.prototype.createReadStream = function(key, opts) {
   var start = opts.start || 0;
   var endSet = typeof opts.end != 'undefined';
 
-  var startBlock = {
+  var startAt = {
     idx: floor((start || 0) / this.blockSize),
-    start: (start || 0) % this.blockSize
+    offset: (start || 0) % this.blockSize
   };
+  debug('start at %j', startAt);
 
-  var endBlock = {
-    idx: endSet && opts.end > 0
-      ? floor(opts.end / this.blockSize)
-      : -1,
-    end: endSet && opts.end % this.blockSize
+  var endAt = {
+    idx: endSet
+      ? (opts.end > 0 ? floor(opts.end / this.blockSize) : 0)
+      : Infinity,
+    offset: endSet
+      ? opts.end % this.blockSize
+      : Infinity
   };
+  debug('end at %j', endAt);
 
-  var idx = startBlock.idx;
+  var idx = startAt.idx;
 
   rs._read = function() {
-    if (endSet && idx > endBlock.idx) return rs.push(null);
+    debug('read');
+
+    if (idx > endAt.idx) {
+      debug('end');
+      return rs.push(null);
+    }
 
     db.get(join(key, 'blocks', idx), function(err, block) {
       if (err) {
-        if (!err.notFound || err.notFound && idx == 0)
+        if (!err.notFound || err.notFound && idx == 0) {
           rs.emit('error', err);
-        else
+        } else {
+          debug('end');
           rs.push(null);
+        }
         return;
       }
 
-      if (start != 0 && idx == startBlock.idx) {
-        block = block.slice(startBlock.start);
+      if (start != 0 && idx == startAt.idx) {
+        block = block.slice(startAt.offset);
       }
-      if (endSet && idx == endBlock.idx) {
-        block = block.slice(0, min(block.length, endBlock.end + 1));
+      if (idx == endAt.idx) {
+        block = block.slice(0, min(block.length, endAt.offset + 1));
       }
       if (!block.length) return rs.push(null);
 
       idx++;
+      debug('push %s', block);
       rs.push(block);
     });
   };
