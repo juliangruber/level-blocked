@@ -7,10 +7,6 @@ on top of [LevelUp](https://github.com/rvagg/node-levelup).
 
 [![testling badge](https://ci.testling.com/juliangruber/level-blocked.png)](https://ci.testling.com/juliangruber/level-blocked)
 
-## work in progress
-
-The writing part still is missing.
-
 ## key design
 
 ```js
