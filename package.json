@@ -1,7 +1,7 @@
 {
   "name": "level-blocked",
   "description": "Blocked data storage on top of LevelUp",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "repository": {
     "type": "git",
     "url": "git://github.com/juliangruber/level-blocked.git"
