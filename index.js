@@ -115,7 +115,8 @@ Blocked.prototype.createWriteStream = function(key, opts) {
 
   ws._write = function(buf, enc, cb) {
     self.write(key, buf, {
-      start: offset
+      start: offset,
+      batch: opts.batch
     }, function(err) {
       if (err) return cb(err);
       offset += buf.length;
