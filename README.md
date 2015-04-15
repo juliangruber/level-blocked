@@ -41,14 +41,10 @@ Streaming read access.
 * `opts.end`: The last byte to read
 
 ```js
-blocks.write('key', 'value', function(err){
-  if (err) throw err;
-
-  blocks.createReadStream('key').on('data', function(block) {
-    console.log('block: %s', block);
-    // => block: val
-    // => block: ue
-  });
+blocks.createReadStream('key').on('data', function(block) {
+  console.log('block: %s', block);
+  // => block: val
+  // => block: ue
 });
 ```
 
@@ -61,14 +57,36 @@ Callback / buffered read access.
 * `opts.end`: The last byte to read
 
 ```js
+blocks.read('key', function(err, block) {
+  if (err) throw err;
+  console.log('block: %s', block);
+  // => block: value
+});
+```
+
+### block.createWriteStream(key[, opts])
+
+Streaming write access.
+
+* `key`: The address of your data
+* `opts.start`: Writer after this byte
+* `opts.batch`: Write to this batch
+
+```js
+blocks.createWriteStream('key').end('value');
+```
+
+### blocks.write(key[, opts], cb)
+
+Callback write access.
+
+* `key`: The address of your data
+* `opts.start`: Writer after this byte
+* `opts.batch`: Write to this batch
+
+```js
 blocks.write('key', 'value', function(err){
   if (err) throw err;
-
-  blocks.read('key', function(err, block) {
-    if (err) throw err;
-    console.log('block: %s', block);
-    // => block: value
-  });
 });
 ```
 
