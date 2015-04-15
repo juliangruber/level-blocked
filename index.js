@@ -63,7 +63,7 @@ Blocked.prototype.createReadStream = function(key, opts) {
         }
         return;
       }
-      debug('got %s', block);
+      debug('got %o', block);
 
       if (start != 0 && idx == startAt.idx) {
         debug('omit first %s bytes', startAt.offset);
@@ -79,7 +79,7 @@ Blocked.prototype.createReadStream = function(key, opts) {
       }
 
       idx++;
-      debug('push %s', block);
+      debug('push %o', block);
       rs.push(block);
     });
   };
@@ -133,7 +133,7 @@ Blocked.prototype.write = function(key, buf, opts, cb) {
   }
   if (!opts) opts = {};
   if (!Buffer.isBuffer(buf)) buf = new Buffer(buf);
-  debug('write to "%s" "%s" %j', key, buf, opts);
+  debug('write to "%s" "%o" %j', key, buf, opts);
 
   var self = this;
   var batch = opts.batch || self.db.batch();
@@ -164,22 +164,23 @@ Blocked.prototype.write = function(key, buf, opts, cb) {
         block = new Buffer(writeNow + startAt.offset);
         block.fill('\x00');
       }
-      debug('first block "%s"', block);
+      debug('first block %o', block);
 
-      debug('copy %s bytes from "%s" at %s to "%s" at %s', writeNow, buf, sourceStart, block, targetStart);
+      debug('copy %s bytes from %o at %s to %o at %s', writeNow, buf, sourceStart, block, targetStart);
       buf.copy(block, targetStart, sourceStart, writeNow);
 
-      debug('batch "%s" = "%s"', startAt.key, block);
+      debug('batch "%s" = %o', startAt.key, block);
       batch.put(startAt.key, block);
 
       var bytesLeft = buf.length - writeNow;
+      debug('bytes left %s', bytesLeft);
       if (startAt.idx == endBlockIdx || !bytesLeft) return batch.write(cb);
 
       for (var idx = startAt.idx + 1; idx <= endBlockIdx; idx++) {
         var offset = buf.length - bytesLeft;
         var _key = join(key, 'blocks', idx);
         var _value = buf.slice(offset, offset + min(self.blockSize, bytesLeft));
-        debug('batch "%s" = "%s"', _key, _value);
+        debug('batch "%s" = %o', _key, _value);
         batch.put(_key, _value);
         bytesLeft -= self.blockSize;
       }

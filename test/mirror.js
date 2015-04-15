@@ -12,8 +12,12 @@ function mirror(db, want, cb) {
   .on('end', function() {
     if (equal(is, want)) cb();
     else {
-      cb(new Error('is: ' + JSON.stringify(is) + '\nwant: ' + JSON.stringify(want)));
+      cb(new Error('is: ' + stringify(is) + '\nwant: ' + stringify(want)));
     }
   });
+}
+
+function stringify(obj){
+  return JSON.stringify(obj, null, '  ');
 }
 
