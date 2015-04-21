@@ -162,7 +162,11 @@ Blocked.prototype.write = function(key, buf, opts, cb) {
     self.db.get(startAt.key, function(err, block) {
       if (err && !err.notFound) return cb(err);
 
-      if (!block) {
+      if (block) {
+        var minLength = writeNow + targetStart;
+        var dif = minLength - block.length;
+        if (dif > 0) block = Buffer.concat([block, new Buffer(dif)], minLength);
+      } else {
         block = new Buffer(min(self.blockSize, buf.length + startAt.offset));
         block.fill('\x00');
       }

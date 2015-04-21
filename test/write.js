@@ -88,3 +88,21 @@ test('start inside second block', function(t) {
   });
 });
 
+test('append', function(t) {
+  t.plan(3);
+
+  var db = memdb();
+  var blocks = blocked(db, 10);
+
+  blocks.write('key', 'value', function(err){
+    t.error(err);
+    blocks.write('key', 'value', { start: 5 }, function(err){
+      t.error(err);
+
+      mirror(db, {
+        'key\xffblocks\xff0': 'valuevalue',
+      }, t.error.bind(t));
+    });
+  });
+});
+
